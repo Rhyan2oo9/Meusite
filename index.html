@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz: Qual jogador do Real Madrid você seria?</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #00529F 0%, #000000 100%);
+        }
+        
+        .form-container {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(to right, #00529F, #000000);
+        }
+        
+        .input-field {
+            transition: all 0.3s ease;
+        }
+        
+        .input-field:focus {
+            box-shadow: 0 0 0 3px rgba(0, 82, 159, 0.3);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to right, #00529F, #000000);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .player-card {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .error-message {
+            animation: shake 0.5s;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-3xl">
+        <div class="form-container bg-white">
+            <!-- Header -->
+            <div class="header text-white p-6 text-center">
+                <div class="flex justify-center mb-4">
+                    <img src="https://upload.wikimedia.org/wikipedia/pt/9/98/Real_Madrid.png" alt="Real Madrid Logo" class="h-16">
+                </div>
+                <h1 class="text-3xl font-bold mb-2">Qual jogador do Real Madrid você seria?</h1>
+                <p class="opacity-80">Responda nosso quiz e descubra qual estrela do Real Madrid combina com seu perfil!</p>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="bg-gray-200 h-2">
+                <div id="progressBar" class="bg-blue-600 h-2 transition-all duration-300" style="width: 0%"></div>
+            </div>
+            
+            <!-- Multi-step Form -->
+            <form id="quizForm" class="p-6 md:p-8">
+                <!-- Step 1 - Personal Info -->
+                <div class="form-step active" data-step="1">
+                    <h2 class="text-xl font-bold mb-6 text-gray-800 border-b pb-2">Informações Pessoais</h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="nome" class="block text-gray-700 font-medium mb-2">Nome Completo</label>
+                            <div class="relative">
+                                <input type="text" id="nome" class="w-full px-4 py-3 rounded-lg border border-gray-300 input-field focus:border-blue-500 focus:outline-none" required>
+                                <div class="absolute right-3 top-3 text-gray-400">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            </div>
+                            <div id="nomeError" class="text-red-500 text-sm mt-1 error-message"></div>
+                        </div>
+                        
+                        <div>
+                            <label for="dataNascimento" class="block text-gray-700 font-medium mb-2">Data de Nascimento</label>
+                            <div class="relative">
+                                <input type="date" id="dataNascimento" class="w-full px-4 py-3 rounded-lg border border-gray-300 input-field focus:border-blue-500 focus:outline-none" required>
+                                <div class="absolute right-3 top-3 text-gray-400">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <label for="email" class="block text-gray-700 font-medium mb-2">E-mail</label>
+                        <div class="relative">
+                            <input type="email" id="email" class="w-full px-4 py-3 rounded-lg border border-gray-300 input-field focus:border-blue-500 focus:outline-none" required>
+                            <div class="absolute right-3 top-3 text-gray-400">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                        </div>
+                        <div id="emailError" class="text-red-500 text-sm mt-1 error-message"></div>
+                    </div>
+                    
+                    <div class="flex justify-end mt-8">
+                        <button type="button" class="btn-primary text-white px-6 py-3 rounded-lg font-medium next-step">Próximo <i class="fas fa-arrow-right ml-2"></i></button>
+                    </div>
+                </div>
+                
+                <!-- Step 2 - Football Preferences -->
+                <div class="form-step hidden" data-step="2">
+                    <h2 class="text-xl font-bold mb-6 text-gray-800 border-b pb-2">Preferências de Futebol</h2>
+                    
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-medium mb-2">Jogador favorito do Real Madrid</label>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="radio" name="jogadorFavorito" value="Benzema" class="h-5 w-5 text-blue-600">
+                                <span>Benzema</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="radio" name="jogadorFavorito" value="Vinicius Jr" class="h-5 w-5 text-blue-600">
+                                <span>Vinícius Jr</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="radio" name="jogadorFavorito" value="Modric" class="h-5 w-5 text-blue-600">
+                                <span>Modrić</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="radio" name="jogadorFavorito" value="Courtois" class="h-5 w-5 text-blue-600">
+                                <span>Courtois</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="posicao" class="block text-gray-700 font-medium mb-2">Posição preferida</label>
+                            <div class="relative">
+                                <select id="posicao" class="w-full px-4 py-3 rounded-lg border border-gray-300 input-field focus:border-blue-500 focus:outline-none appearance-none" required>
+                                    <option value="">Selecione</option>
+                                    <option value="GK">Goleiro</option>
+                                    <option value="DF">Defensor</option>
+                                    <option value="MC">Meio-campista</option>
+                                    <option value="AT">Atacante</option>
+                                </select>
+                                <div class="absolute right-3 top-3 text-gray-400">
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="habilidade" class="block text-gray-700 font-medium mb-2">Principal habilidade</label>
+                            <div class="relative">
+                                <select id="habilidade" class="w-full px-4 py-3 rounded-lg border border-gray-300 input-field focus:border-blue-500 focus:outline-none appearance-none" required>
+                                    <option value="">Selecione</option>
+                                    <option value="chute">Chute</option>
+                                    <option value="passe">Passe</option>
+                                    <option value="drible">Drible</option>
+                                    <option value="defesa">Defesa</option>
+                                    <option value="velocidade">Velocidade</option>
+                                </select>
+                                <div class="absolute right-3 top-3 text-gray-400">
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between mt-8">
+                        <button type="button" class="text-gray-600 px-6 py-3 rounded-lg font-medium border border-gray-300 prev-step"><i class="fas fa-arrow-left mr-2"></i> Voltar</button>
+                        <button type="button" class="btn-primary text-white px-6 py-3 rounded-lg font-medium next-step">Próximo <i class="fas fa-arrow-right ml-2"></i></button>
+                    </div>
+                </div>
+                
+                <!-- Step 3 - Location Info -->
+                <div class="form-step hidden" data-step="3">
+                    <h2 class="text-xl font-bold mb-6 text-gray-800 border-b pb-2">Localização</h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="cep" class="block text-gray-700 font-medium mb-2">CEP</label>
+                            <div class="relative">
+                                <input type="text" id="cep" class="w-full px-4 py-3 rounded-lg border border-gray-300 input-field focus:border-blue-500 focus:outline-none" required>
+                                <div class="absolute right-3 top-3 text-gray-400">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="estado" class="block text-gray-700 font-medium mb-2">Estado</label>
+                            <div class="relative">
+                                <select id="estado" class="w-full px-4 py-3 rounded-lg border border-gray-300 input-field focus:border-blue-500 focus:outline-none appearance-none" required>
+                                    <option value="">Selecione</option>
+                                    <option value="AC">Acre</option>
+                                    <option value="AL">Alagoas</option>
+                                    <option value="AP">Amapá</option>
+                                    <option value="AM">Amazonas</option>
+                                    <option value="BA">Bahia</option>
+                                    <option value="CE">Ceará</option>
+                                    <option value="DF">Distrito Federal</option>
+                                    <option value="ES">Espírito Santo</option>
+                                    <option value="GO">Goiás</option>
+                                    <option value="MA">Maranhão</option>
+                                    <option value="MT">Mato Grosso</option>
+                                    <option value="MS">Mato Grosso do Sul</option>
+                                    <option value="MG">Minas Gerais</option>
+                                    <option value="PA">Pará</option>
+                                    <option value="PB">Paraíba</option>
+                                    <option value="PR">Paraná</option>
+                                    <option value="PE">Pernambuco</option>
+                                    <option value="PI">Piauí</option>
+                                    <option value="RJ">Rio de Janeiro</option>
+                                    <option value="RN">Rio Grande do Norte</option>
+                                    <option value="RS">Rio Grande do Sul</option>
+                                    <option value="RO">Rondônia</option>
+                                    <option value="RR">Roraima</option>
+                                    <option value="SC">Santa Catarina</option>
+                                    <option value="SP">São Paulo</option>
+                                    <option value="SE">Sergipe</option>
+                                    <option value="TO">Tocantins</option>
+                                </select>
+                                <div class="absolute right-3 top-3 text-gray-400">
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-3 gap-6 mt-6">
+                        <div>
+                            <label for="cidade" class="block text-gray-700 font-medium mb-2">Cidade</label>
+                            <input type="text" id="cidade" class="w-full px-4 py-3 rounded-lg border border-gray-300 input-field focus:border-blue-500 focus:outline-none" required>
+                        </div>
+                        
+                        <div>
+                            <label for="bairro" class="block text-gray-700 font-medium mb-2">Bairro</label>
+                            <input type="text" id="bairro" class="w-full px-4 py-3 rounded-lg border border-gray-300 input-field focus:border-blue-500 focus:outline-none" required>
+                        </div>
+                        
+                        <div>
+                            <label for="rua" class="block text-gray-700 font-medium mb-2">Rua</label>
+                            <input type="text" id="rua" class="w-full px-4 py-3 rounded-lg border border-gray-300 input-field focus:border-blue-500 focus:outline-none" required>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between mt-8">
+                        <button type="button" class="text-gray-600 px-6 py-3 rounded-lg font-medium border border-gray-300 prev-step"><i class="fas fa-arrow-left mr-2"></i> Voltar</button>
+                        <button type="button" class="btn-primary text-white px-6 py-3 rounded-lg font-medium next-step">Próximo <i class="fas fa-arrow-right ml-2"></i></button>
+                    </div>
+                </div>
+                
+                <!-- Step 4 - Account Info -->
+                <div class="form-step hidden" data-step="4">
+                    <h2 class="text-xl font-bold mb-6 text-gray-800 border-b pb-2">Crie sua conta</h2>
+                    
+                    <div class="mb-6">
+                        <label for="usuario" class="block text-gray-700 font-medium mb-2">Nome de usuário</label>
+                        <div class="relative">
+                            <input type="text" id="usuario" class="w-full px-4 py-3 rounded-lg border border-gray-300 input-field focus:border-blue-500 focus:outline-none" required>
+                            <div class="absolute right-3 top-3 text-gray-400">
+                                <i class="fas fa-at"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="senha" class="block text-gray-700 font-medium mb-2">Senha</label>
+                            <div class="relative">
+                                <input type="password" id="senha" class="w-full px-4 py-3 rounded-lg border border-gray-300 input-field focus:border-blue-500 focus:outline-none" required>
+                                <div class="absolute right-3 top-3 text-gray-400">
+                                    <i class="fas fa-lock"></i>
+                                </div>
+                            </div>
+                            <div class="text-xs text-gray-500 mt-1">Mínimo de 8 caracteres</div>
+                        </div>
+                        
+                        <div>
+                            <label for="confirmaSenha" class="block text-gray-700 font-medium mb-2">Confirmar Senha</label>
+                            <div class="relative">
+                                <input type="password" id="confirmaSenha" class="w-full px-4 py-3 rounded-lg border border-gray-300 input-field focus:border-blue-500 focus:outline-none" required>
+                                <div class="absolute right-3 top-3 text-gray-400">
+                                    <i class="fas fa-lock"></i>
+                                </div>
+                            </div>
+                            <div id="senhaError" class="text-red-500 text-sm mt-1 error-message"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="h-5 w-5 text-blue-600" required>
+                            <span class="ml-2 text-gray-700">Eu concordo com os <a href="#" class="text-blue-600 hover:underline">Termos de Serviço</a> e <a href="#" class="text-blue-600 hover:underline">Política de Privacidade</a></span>
+                        </label>
+                    </div>
+                    
+                    <div class="flex justify-between mt-8">
+                        <button type="button" class="text-gray-600 px-6 py-3 rounded-lg font-medium border border-gray-300 prev-step"><i class="fas fa-arrow-left mr-2"></i> Voltar</button>
+                        <button type="submit" class="btn-primary text-white px-6 py-3 rounded-lg font-medium">Descobrir meu jogador <i class="fas fa-futbol ml-2"></i></button>
+                    </div>
+                </div>
+            </form>
+            
+            <!-- Results Section -->
+            <div id="results" class="hidden p-6 md:p-8 text-center">
+                <h2 class="text-2xl font-bold mb-6 text-gray-800">Seu resultado!</h2>
+                
+                <div class="player-card" id="courtois">
+                    <div class="bg-gray-100 rounded-lg p-6 mb-6">
+                        <img src="https://img.a.transfermarkt.technology/portrait/big/58304-1671435885.jpg" alt="Thibaut Courtois" class="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-white shadow-md">
+                        <h3 class="text-xl font-bold mb-2">Você seria o Thibaut Courtois!</h3>
+                        <p class="text-gray-700 mb-4">Assim como o gigante belga, você é confiável, tem grande presença e é crucial em momentos decisivos. Sua capacidade de liderança e frieza sob pressão são suas maiores qualidades.</p>
+                        <div class="bg-blue-100 text-blue-800 rounded-full px-4 py-2 inline-block">
+                            <i class="fas fa-shield-alt mr-2"></i> Goleiro - A última barreira
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="player-card" id="modric">
+                    <div class="bg-gray-100 rounded-lg p-6 mb-6">
+                        <img src="https://img.a.transfermarkt.technology/portrait/big/30872-1671435884.jpg" alt="Luka Modrić" class="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-white shadow-md">
+                        <h3 class="text-xl font-bold mb-2">Você seria o Luka Modrić!</h3>
+                        <p class="text-gray-700 mb-4">Assim como o croata, você é inteligente, criativo e fundamental para o funcionamento do time. Sua visão de jogo e capacidade de ditar o ritmo são incomparáveis.</p>
+                        <div class="bg-blue-100 text-blue-800 rounded-full px-4 py-2 inline-block">
+                            <i class="fas fa-chess mr-2"></i> Meio-campista - O maestro
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="player-card" id="vinicius">
+                    <div class="bg-gray-100 rounded-lg p-6 mb-6">
+                        <img src="https://img.a.transfermarkt.technology/portrait/big/371998-1671435885.jpg" alt="Vinícius Júnior" class="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-white shadow-md">
+                        <h3 class="text-xl font-bold mb-2">Você seria o Vinícius Júnior!</h3>
+                        <p class="text-gray-700 mb-4">Assim como o brasileiro, você é talentoso, rápido e imprevisível. Sua habilidade de driblar adversários e criar jogadas do nada faz de você uma peça fundamental no ataque.</p>
+                        <div class="bg-blue-100 text-blue-800 rounded-full px-4 py-2 inline-block">
+                            <i class="fas fa-bolt mr-2"></i> Atacante - O driblador
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="player-card" id="benzema">
+                    <div class="bg-gray-100 rounded-lg p-6 mb-6">
+                        <img src="https://img.a.transfermarkt.technology/portrait/big/18922-1671435884.jpg" alt="Karim Benzema" class="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-white shadow-md">
+                        <h3 class="text-xl font-bold mb-2">Você seria o Karim Benzema!</h3>
+                        <p class="text-gray-700 mb-4">Assim como o francês, você é completo, técnico e decisivo. Sua capacidade de finalização e de criar jogadas para os companheiros faz de você o jogador mais valioso do time.</p>
+                        <div class="bg-blue-100 text-blue-800 rounded-full px-4 py-2 inline-block">
+                            <i class="fas fa-crown mr-2"></i> Atacante - O artilheiro
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="restartQuiz" class="btn-primary text-white px-6 py-3 rounded-lg font-medium mt-6">Fazer novamente <i class="fas fa-redo ml-2"></i></button>
+            </div>
+        </div>
+        
+        <div class="text-center text-white mt-6 text-sm">
+            <p>Este quiz é apenas para diversão e não tem relação oficial com o Real Madrid CF.</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const formSteps = document.querySelectorAll('.form-step');
+            const progressBar = document.getElementById('progressBar');
+            const quizForm = document.getElementById('quizForm');
+            const resultsSection = document.getElementById('results');
+            const playerCards = document.querySelectorAll('.player-card');
+            const restartBtn = document.getElementById('restartQuiz');
+            
+            let currentStep = 1;
+            const totalSteps = formSteps.length;
+            
+            // Initialize form
+            updateProgressBar();
+            
+            // Next step buttons
+            document.querySelectorAll('.next-step').forEach(button => {
+                button.addEventListener('click', function() {
+                    if (validateStep(currentStep)) {
+                        currentStep++;
+                        updateForm();
+                    }
+                });
+            });
+            
+            // Previous step buttons
+            document.querySelectorAll('.prev-step').forEach(button => {
+                button.addEventListener('click', function() {
+                    currentStep--;
+                    updateForm();
+                });
+            });
+            
+            // Form submission
+            quizForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (validateStep(currentStep)) {
+                    // Process form and show results
+                    showResults();
+                }
+            });
+            
+            // Restart quiz
+            restartBtn.addEventListener('click', function() {
+                currentStep = 1;
+                quizForm.reset();
+                resultsSection.classList.add('hidden');
+                quizForm.classList.remove('hidden');
+                updateForm();
+            });
+            
+            // CEP auto-fill
+            document.getElementById('cep').addEventListener('blur', function() {
+                const cep = this.value.replace(/\D/g, '');
+                
+                if (cep.length === 8) {
+                    fetch(`https://viacep.com.br/ws/${cep}/json/`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (!data.erro) {
+                                document.getElementById('estado').value = data.uf;
+                                document.getElementById('cidade').value = data.localidade;
+                                document.getElementById('bairro').value = data.bairro;
+                                document.getElementById('rua').value = data.logradouro;
+                            }
+                        })
+                        .catch(error => console.error('Erro ao buscar CEP:', error));
+                }
+            });
+            
+            function updateForm() {
+                formSteps.forEach(step => {
+                    const stepNumber = parseInt(step.dataset.step);
+                    
+                    if (stepNumber === currentStep) {
+                        step.classList.remove('hidden');
+                        step.classList.add('active');
+                    } else {
+                        step.classList.add('hidden');
+                        step.classList.remove('active');
+                    }
+                });
+                
+                updateProgressBar();
+                
+                // Scroll to top of form
+                document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            function updateProgressBar() {
+                const progress = ((currentStep - 1) / (totalSteps - 1)) * 100;
+                progressBar.style.width = `${progress}%`;
+            }
+            
+            function validateStep(step) {
+                let isValid = true;
+                
+                // Clear previous errors
+                document.querySelectorAll('.error-message').forEach(el => {
+                    el.textContent = '';
+                });
+                
+                if (step === 1) {
+                    const nome = document.getElementById('nome');
+                    const email = document.getElementById('email');
+                    
+                    if (nome.value.trim() === '') {
+                        document.getElementById('nomeError').textContent = 'Por favor, insira seu nome';
+                        isValid = false;
+                    }
+                    
+                    if (email.value.trim() === '' || !email.value.includes('@')) {
+                        document.getElementById('emailError').textContent = 'Por favor, insira um e-mail válido';
+                        isValid = false;
+                    }
+                }
+                
+                if (step === 4) {
+                    const senha = document.getElementById('senha');
+                    const confirmaSenha = document.getElementById('confirmaSenha');
+                    const senhaError = document.getElementById('senhaError');
+                    
+                    if (senha.value.length < 8) {
+                        senhaError.textContent = 'A senha deve ter pelo menos 8 caracteres';
+                        isValid = false;
+                    } else if (senha.value !== confirmaSenha.value) {
+                        senhaError.textContent = 'As senhas não coincidem';
+                        isValid = false;
+                    }
+                }
+                
+                return isValid;
+            }
+            
+            function showResults() {
+                // Hide form and show results
+                quizForm.classList.add('hidden');
+                resultsSection.classList.remove('hidden');
+                
+                // Determine which player to show (this is a simplified version)
+                const posicao = document.getElementById('posicao').value;
+                const habilidade = document.getElementById('habilidade').value;
+                const jogadorFavorito = document.querySelector('input[name="jogadorFavorito"]:checked')?.value;
+                
+                // Simple logic to determine player (in a real app this would be more complex)
+                let playerToShow = 'modric'; // default
+                
+                if (posicao === 'GK') {
+                    playerToShow = 'courtois';
+                } else if (jogadorFavorito === 'Benzema') {
+                    playerToShow = 'benzema';
+                } else if (jogadorFavorito === 'Vinicius Jr') {
+                    playerToShow = 'vinicius';
+                } else if (habilidade === 'drible' || habilidade === 'velocidade') {
+                    playerToShow = 'vinicius';
+                } else if (habilidade === 'chute') {
+                    playerToShow = 'benzema';
+                }
+                
+                // Show the appropriate player card
+                playerCards.forEach(card => {
+                    card.style.display = card.id === playerToShow ? 'block' : 'none';
+                });
+                
+                // Scroll to results
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    </script>
+</body>
+</html>
